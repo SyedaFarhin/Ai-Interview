@@ -50,13 +50,9 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
         }
     })
 
-    const rawText = response?.text || response?.outputText || JSON.stringify(response)
-    try {
-        return JSON.parse(rawText)
-    } catch (parseError) {
-        console.error("Failed to parse AI interview report JSON:", parseError, rawText)
-        throw new Error("AI service returned an invalid response. Please try again later.")
-    }
+    return JSON.parse(response.text)
+
+
 }
 
 
@@ -108,19 +104,13 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
         }
     })
 
-    const rawText = response?.text || response?.outputText || JSON.stringify(response)
-    let jsonContent
-    try {
-        jsonContent = JSON.parse(rawText)
-    } catch (parseError) {
-        console.error("Failed to parse AI resume PDF JSON:", parseError, rawText)
-        throw new Error("AI service returned an invalid resume response. Please try again later.")
-    }
+
+    const jsonContent = JSON.parse(response.text)
 
     const pdfBuffer = await generatePdfFromHtml(jsonContent.html)
 
     return pdfBuffer
-}
 
+}
 
 module.exports = { generateInterviewReport, generateResumePdf }
