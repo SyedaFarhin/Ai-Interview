@@ -8,13 +8,44 @@ const Home = () => {
     const { loading, generateReport,reports } = useInterview()
     const [ jobDescription, setJobDescription ] = useState("")
     const [ selfDescription, setSelfDescription ] = useState("")
+    const [ selectedResumeName, setSelectedResumeName ] = useState("")
     const resumeInputRef = useRef()
 
     const navigate = useNavigate()
 
     const handleGenerateReport = async () => {
         const resumeFile = resumeInputRef.current.files[ 0 ]
+
+        if (!jobDescription) {
+            alert("Please enter the job description.")
+            return
+        }
+
+        if (!resumeFile && !selfDescription) {
+            alert("Please upload a resume or provide a self description.")
+            return
+        }
+
+        if (resumeFile) {
+            const name = resumeFile.name.toLowerCase()
+            if (!name.endsWith('.pdf')) {
+                alert("Please upload a PDF resume file.")
+                return
+            }
+
+            if (resumeFile.size > 5 * 1024 * 1024) {
+                alert("Resume file is too large. Please select a PDF smaller than 5MB.")
+                return
+            }
+        }
+
         const data = await generateReport({ jobDescription, selfDescription, resumeFile })
+
+        if (!data || data.error || !data._id) {
+            alert(data?.error || "Unable to generate the report. Please check your inputs and try again.")
+            return
+        }
+
         navigate(`/interview/${data._id}`)
     }
 
@@ -80,8 +111,20 @@ const Home = () => {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" /><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" /></svg>
                                 </span>
                                 <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
-                                <p className='dropzone__subtitle'>PDF or DOCX (Max 5MB)</p>
-                                <input ref={resumeInputRef} hidden type='file' id='resume' name='resume' accept='.pdf,.docx' />
+                                <p className='dropzone__subtitle'>PDF only (Max 5MB)</p>
+                                <input
+                                    ref={resumeInputRef}
+                                    hidden
+                                    type='file'
+                                    id='resume'
+                                    name='resume'
+                                    accept='.pdf,application/pdf'
+                                    onChange={() => {
+                                        const file = resumeInputRef.current.files[0]
+                                        setSelectedResumeName(file ? file.name : "")
+                                    }}
+                                />
+                                {selectedResumeName && <p className='selected-file'>Selected file: {selectedResumeName}</p>}
                             </label>
                         </div>
 

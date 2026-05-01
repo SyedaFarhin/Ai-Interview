@@ -20,14 +20,20 @@ export const useInterview = () => {
         let response = null
         try {
             response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile })
-            setReport(response.interviewReport)
+            if (response?.interviewReport) {
+                setReport(response.interviewReport)
+                return response.interviewReport
+            }
+
+            return response
         } catch (error) {
-            console.log(error)
+            console.error(error)
+            return {
+                error: error?.response?.data?.message || error?.message || "Unable to upload resume."
+            }
         } finally {
             setLoading(false)
         }
-
-        return response.interviewReport
     }
 
     const getReportById = async (interviewId) => {
