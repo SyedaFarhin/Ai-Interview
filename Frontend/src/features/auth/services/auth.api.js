@@ -14,7 +14,7 @@ export async function register({ username, email, password }) {
         })
         return response.data
     } catch (err) {
-        console.log(err)
+        console.log(err.response?.data)
     }
 }
 
