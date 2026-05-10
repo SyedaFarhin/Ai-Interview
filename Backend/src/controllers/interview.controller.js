@@ -78,6 +78,8 @@ async function generateResumePdfController(req, res) {
 
         const { interviewReportId } = req.params
 
+        console.log("Interview Report ID:", interviewReportId)
+
         const interviewReport = await interviewReportModel.findById(interviewReportId)
 
         if (!interviewReport) {
@@ -88,25 +90,31 @@ async function generateResumePdfController(req, res) {
 
         const { resume, jobDescription, selfDescription } = interviewReport
 
+        console.log("Generating PDF...")
+
         const pdfBuffer = await generateResumePdf({
             resume,
             jobDescription,
             selfDescription
         })
 
+        console.log("PDF generated successfully")
+
         res.set({
             "Content-Type": "application/pdf",
             "Content-Disposition": `attachment; filename=resume_${interviewReportId}.pdf`
         })
 
-        res.send(pdfBuffer)
+        return res.send(pdfBuffer)
 
     } catch (error) {
 
-        console.error("RESUME PDF CONTROLLER ERROR:", error)
+        console.error("FULL PDF ERROR:", error)
 
-        res.status(500).json({
-            message: error.message || "Internal Server Error"
+        return res.status(500).json({
+            error: true,
+            message: error.message,
+            stack: error.stack
         })
     }
 }
