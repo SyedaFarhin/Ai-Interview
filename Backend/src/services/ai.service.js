@@ -41,6 +41,8 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
                         Job Description: ${jobDescription}
 `
 
+   try {
+
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
@@ -49,6 +51,17 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
             responseSchema: zodToJsonSchema(interviewReportSchema),
         }
     })
+
+    return response.text
+
+} catch (error) {
+
+    console.log("GEMINI ERROR:", error)
+
+    throw new Error(
+        "Gemini API quota exceeded or service temporarily unavailable."
+    )
+}
 
     return JSON.parse(response.text)
 
