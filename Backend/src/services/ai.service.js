@@ -57,16 +57,22 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 
 
 
+
+
 async function generatePdfFromHtml(htmlContent) {
 
     try {
 
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            executablePath: puppeteer.executablePath(),
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox"
+            ]
         })
 
-        const page = await browser.newPage();
+        const page = await browser.newPage()
 
         await page.setContent(htmlContent, {
             waitUntil: "networkidle0"
@@ -88,7 +94,7 @@ async function generatePdfFromHtml(htmlContent) {
 
     } catch (error) {
 
-        console.log("PDF GENERATION ERROR:", error)
+        console.error("PDF ERROR:", error)
 
         throw error
     }
