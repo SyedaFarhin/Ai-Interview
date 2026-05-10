@@ -6,8 +6,23 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://ai-interview-git-main-syeda-farhins-projects.vercel.app",
+    "https://ai-interview-flame-nine.vercel.app"
+]
+
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true)
+        } else {
+            callback(new Error("Not allowed by CORS"))
+        }
+
+    },
     credentials: true
 }))
 
@@ -15,11 +30,8 @@ app.use(cors({
 const authRouter = require("./routes/auth.routes")
 const interviewRouter = require("./routes/interview.routes")
 
-
 /* using all the routes here */
 app.use("/api/auth", authRouter)
 app.use("/api/interview", interviewRouter)
-
-
 
 module.exports = app
